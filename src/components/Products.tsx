@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Images, ChevronDown, Loader2, Bell } from 'lucide-react';
+import { Search, Images, ChevronDown, Bell, Share2 } from 'lucide-react';
 import { categoryLabels, WHATSAPP_NUMBER } from '../data/products';
 import { useProducts } from '../context/ProductsContext';
 import type { ProductCategory } from '../types';
@@ -60,6 +60,27 @@ function formatPrice(price: string): string {
   return `₦${price}`;
 }
 
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+      <div className="aspect-square bg-gray-200 animate-pulse" />
+      <div className="p-4 space-y-3">
+        <div className="h-3 w-1/3 bg-gray-200 rounded animate-pulse" />
+        <div className="h-4 w-4/5 bg-gray-200 rounded animate-pulse" />
+        <div className="h-6 w-2/5 bg-gray-200 rounded animate-pulse" />
+        <div className="h-3 w-1/4 bg-gray-200 rounded animate-pulse" />
+        <div className="flex gap-1.5">
+          <div className="h-5 w-14 bg-gray-200 rounded-md animate-pulse" />
+          <div className="h-5 w-14 bg-gray-200 rounded-md animate-pulse" />
+          <div className="h-5 w-12 bg-gray-200 rounded-md animate-pulse" />
+        </div>
+        <div className="h-10 bg-gray-200 rounded-xl animate-pulse" />
+        <div className="h-8 bg-gray-200 rounded-xl animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
 const WhatsAppIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
@@ -73,6 +94,7 @@ export default function Products() {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number; title: string; currentPrice: string; description: string } | null>(null);
   const [notifyProduct, setNotifyProduct] = useState<{ _docId: string; name: string } | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -87,16 +109,28 @@ export default function Products() {
   const visibleProducts = filtered.slice(0, visible);
   const hasMore = visible < filtered.length;
 
+  const handleShare = async (product: FirestoreProduct, priceLines: PriceLine[]) => {
+    const priceText = priceLines[0] ? ` – starting from ${formatPrice(priceLines[0].price)}` : '';
+    const text = `Check out ${product.name}${priceText} at BNT-GET SERVICE!`;
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: product.name, text, url });
+      } else {
+        await navigator.clipboard.writeText(`${text}\n${url}`);
+        setCopiedId(product._docId);
+        setTimeout(() => setCopiedId(null), 2000);
+      }
+    } catch {
+      // cancelled by user
+    }
+  };
+
   const waLink = (name: string) =>
     `https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20BNT%2C%20I'm%20interested%20in%20the%20${encodeURIComponent(name)}%20from%20your%20website`;
 
   return (
     <section id="gadgets" className="py-24 bg-gray-50">
-      {loading && (
-        <div className="flex justify-center py-8">
-          <Loader2 size={28} className="animate-spin text-brand" />
-        </div>
-      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section header */}
@@ -167,6 +201,13 @@ export default function Products() {
             ))}
           </div>
         </motion.div>
+
+        {/* Skeleton loading grid */}
+        {loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-12">
+            {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        )}
 
         {/* Product grid */}
         <AnimatePresence mode="wait">
@@ -256,10 +297,23 @@ export default function Products() {
                         {categoryIcons[product.category]} {categoryLabels[product.category]}
                       </span>
 
-                      {/* Name */}
-                      <h3 className="font-bold text-gray-900 text-sm leading-snug mb-3">
-                        {product.name}
-                      </h3>
+                      {/* Name + Share */}
+                      <div className="flex items-start justify-between gap-1 mb-3">
+                        <h3 className="font-bold text-gray-900 text-sm leading-snug">
+                          {product.name}
+                        </h3>
+                        <button
+                          onClick={() => handleShare(product, priceLines)}
+                          title="Share this product"
+                          className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-brand hover:bg-brand-50 transition-all cursor-pointer"
+                        >
+                          {copiedId === product._docId ? (
+                            <span className="text-[10px] font-bold text-green-500 leading-none">✓</span>
+                          ) : (
+                            <Share2 size={13} />
+                          )}
+                        </button>
+                      </div>
 
                       {/* Price section */}
                       <div className="mb-3">
