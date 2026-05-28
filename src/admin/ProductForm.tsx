@@ -2,7 +2,7 @@ import { useState, useRef, type ChangeEvent } from 'react';
 import { X, Plus, Loader2, ImagePlus, Trash2, Star } from 'lucide-react';
 import { addProduct, updateProduct, uploadImage, deleteImage } from '../firebase/products';
 import type { FirestoreProduct } from '../firebase/products';
-import type { Product, ProductCategory } from '../types';
+import type { Product, ProductCategory, StockStatus } from '../types';
 import { categoryLabels } from '../data/products';
 
 const CATEGORIES: ProductCategory[] = ['iphone', 'android', 'macbook', 'ipad', 'watch', 'gaming', 'accessories'];
@@ -36,7 +36,7 @@ function priceModelsToHtml(models: PriceModel[]): string {
     .map((m, idx) => {
       const opts = m.options
         .filter((o) => o.storage || o.price)
-        .map((o) => `• ${o.storage} – ${o.price}`)
+        .map((o) => o.storage ? `• ${o.storage} – ${o.price}` : `• ${o.price}`)
         .join('<br/>');
       const block = m.modelName ? `${m.modelName}<br/>${opts}` : opts;
       return idx > 0 ? `<br/><br/>${block}` : block;
@@ -57,6 +57,7 @@ export default function ProductForm({ product, nextOrder, onClose, onSaved }: Pr
   const [name, setName] = useState(product?.name ?? '');
   const [category, setCategory] = useState<ProductCategory>(product?.category ?? 'iphone');
   const [badge, setBadge] = useState(product?.badge ?? '');
+  const [stockStatus, setStockStatus] = useState<StockStatus>(product?.stockStatus ?? 'in_stock');
   const [description, setDescription] = useState(product?.description ?? '');
   const [features, setFeatures] = useState<string[]>(product?.features ?? ['']);
   const [priceModels, setPriceModels] = useState<PriceModel[]>(
@@ -161,6 +162,7 @@ export default function ProductForm({ product, nextOrder, onClose, onSaved }: Pr
       name: name.trim(),
       category,
       badge: badge || undefined,
+      stockStatus,
       description: description.trim(),
       currentPrice: priceModelsToHtml(priceModels),
       features: features.filter(Boolean),
@@ -224,6 +226,14 @@ export default function ProductForm({ product, nextOrder, onClose, onSaved }: Pr
                 <option value="Hot">🔴 Hot</option>
               </select>
             </div>
+            <div>
+              <label className="admin-label">Stock Status</label>
+              <select value={stockStatus} onChange={(e) => setStockStatus(e.target.value as StockStatus)} className="admin-input">
+                <option value="in_stock">✅ In Stock</option>
+                <option value="low_stock">⚠️ Low Stock (Only a Few Left)</option>
+                <option value="out_of_stock">❌ Out of Stock</option>
+              </select>
+            </div>
           </div>
 
           {/* Description */}
@@ -277,6 +287,12 @@ export default function ProductForm({ product, nextOrder, onClose, onSaved }: Pr
                         <input
                           value={opt.price}
                           onChange={(e) => setPriceOption(mi, oi, 'price', e.target.value)}
+                          onBlur={(e) => {
+                            const v = e.target.value.trim();
+                            if (v && !v.startsWith('₦') && !v.startsWith('N')) {
+                              setPriceOption(mi, oi, 'price', `₦${v}`);
+                            }
+                          }}
                           placeholder="Price (e.g. ₦2,100,000)"
                           className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-600 text-xs focus:outline-none focus:border-brand transition-all"
                         />

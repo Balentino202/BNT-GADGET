@@ -1,22 +1,23 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { subscribeToProducts, type FirestoreProduct } from '../firebase/products';
 import { products as staticProducts } from '../data/products';
-import type { Product } from '../types';
 
 interface ProductsContextValue {
-  products: Product[];
+  products: FirestoreProduct[];
   loading: boolean;
   fromFirestore: boolean;
 }
 
+const staticAsFirestore: FirestoreProduct[] = staticProducts.map((p, i) => ({ ...p, _docId: p.id, order: i }));
+
 const ProductsContext = createContext<ProductsContextValue>({
-  products: staticProducts,
+  products: staticAsFirestore,
   loading: false,
   fromFirestore: false,
 });
 
 export function ProductsProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(staticProducts);
+  const [products, setProducts] = useState<FirestoreProduct[]>(staticAsFirestore);
   const [loading, setLoading] = useState(true);
   const [fromFirestore, setFromFirestore] = useState(false);
 
@@ -26,7 +27,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
         setProducts(docs);
         setFromFirestore(true);
       } else {
-        setProducts(staticProducts);
+        setProducts(staticAsFirestore);
         setFromFirestore(false);
       }
       setLoading(false);

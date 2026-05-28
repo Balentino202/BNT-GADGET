@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Images, ChevronDown, Loader2 } from 'lucide-react';
+import { Search, Images, ChevronDown, Loader2, Bell } from 'lucide-react';
 import { categoryLabels, WHATSAPP_NUMBER } from '../data/products';
 import { useProducts } from '../context/ProductsContext';
 import type { ProductCategory } from '../types';
+import type { FirestoreProduct } from '../firebase/products';
 import Lightbox from './Lightbox';
+import NotifyMeModal from './NotifyMeModal';
 
 const CATEGORIES: ProductCategory[] = ['all', 'iphone', 'android', 'macbook', 'ipad', 'watch', 'gaming', 'accessories'];
 const PAGE_SIZE = 8;
@@ -25,10 +27,37 @@ const badgeStyle: Record<string, string> = {
   Hot: 'bg-red-500',
 };
 
-/** Extract the first ₦ price from an HTML string for a "From ₦X" label */
-function extractFromPrice(html: string): string {
-  const match = html.match(/₦([\d,]+)/);
-  return match ? `₦${match[1]}` : '';
+interface PriceLine { storage: string; price: string; }
+
+/** Parse all storage+price pairs from the currentPrice HTML string */
+function parsePriceLines(html: string): PriceLine[] {
+  if (!html) return [];
+  const lines = html.split('<br/>').map((l) => l.replace(/^•\s*/, '').trim()).filter(Boolean);
+  const result: PriceLine[] = [];
+  for (const line of lines) {
+    // Use en-dash (–) as the storage–price separator
+    const enDash = line.indexOf('–');
+    if (enDash > 0) {
+      const left = line.slice(0, enDash).trim();
+      const right = line.slice(enDash + 1).trim();
+      if (/\d/.test(right)) {
+        result.push({ storage: left, price: right });
+        continue;
+      }
+    }
+    // No separator — if the line has no letters it must be a price (e.g. ₦500,000)
+    if (!/[a-zA-Z]/.test(line) && /\d{3,}/.test(line)) {
+      result.push({ storage: '', price: line });
+    }
+  }
+  return result;
+}
+
+/** Ensure price has ₦ prefix */
+function formatPrice(price: string): string {
+  if (!price) return '';
+  if (price.startsWith('₦') || price.startsWith('N')) return price;
+  return `₦${price}`;
 }
 
 const WhatsAppIcon = () => (
@@ -42,7 +71,8 @@ export default function Products() {
   const [category, setCategory] = useState<ProductCategory>('all');
   const [search, setSearch] = useState('');
   const [visible, setVisible] = useState(PAGE_SIZE);
-  const [lightbox, setLightbox] = useState<{ images: string[]; index: number; title: string } | null>(null);
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number; title: string; currentPrice: string; description: string } | null>(null);
+  const [notifyProduct, setNotifyProduct] = useState<{ _docId: string; name: string } | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -51,7 +81,7 @@ export default function Products() {
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
         return matchesCat && matchesSearch;
       }),
-    [category, search],
+    [products, category, search],
   );
 
   const visibleProducts = filtered.slice(0, visible);
@@ -160,7 +190,7 @@ export default function Products() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
             >
               {visibleProducts.map((product, i) => {
-                const fromPrice = extractFromPrice(product.currentPrice);
+                const priceLines = parsePriceLines(product.currentPrice);
                 return (
                   <motion.div
                     key={product.id}
@@ -172,7 +202,7 @@ export default function Products() {
                     {/* Image */}
                     <div
                       className="relative aspect-square overflow-hidden bg-gray-50 cursor-pointer"
-                      onClick={() => setLightbox({ images: product.images, index: 0, title: product.name })}
+                      onClick={() => setLightbox({ images: product.images, index: 0, title: product.name, currentPrice: product.currentPrice, description: product.description })}
                     >
                       <img
                         src={product.thumbnail}
@@ -198,6 +228,18 @@ export default function Products() {
                         </span>
                       )}
 
+                      {/* Stock status badge */}
+                      {product.stockStatus === 'out_of_stock' && (
+                        <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 text-[11px] font-black text-white rounded-full bg-gray-700/90 backdrop-blur-sm uppercase tracking-wide">
+                          Out of Stock
+                        </span>
+                      )}
+                      {product.stockStatus === 'low_stock' && (
+                        <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 text-[11px] font-black text-white rounded-full bg-orange-500/90 backdrop-blur-sm uppercase tracking-wide">
+                          Only a Few Left
+                        </span>
+                      )}
+
                       {/* Photo count */}
                       {product.images.length > 1 && (
                         <span className="absolute bottom-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 bg-black/60 text-white text-[11px] font-medium rounded-lg backdrop-blur-sm">
@@ -219,10 +261,19 @@ export default function Products() {
                         {product.name}
                       </h3>
 
-                      {/* Price */}
+                      {/* Price section */}
                       <div className="mb-3">
-                        <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Starting from</p>
-                        <p className="text-brand font-black text-xl leading-tight">{fromPrice}</p>
+                        <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider mb-0.5">Starting from</p>
+                        {priceLines.length > 0 ? (
+                          <>
+                            <p className="text-brand font-black text-xl leading-tight">{formatPrice(priceLines[0].price)}</p>
+                            {priceLines[0].storage && (
+                              <p className="text-gray-600 text-xs font-bold mt-0.5">{priceLines[0].storage}</p>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-brand font-black text-xl leading-tight">Contact for price</p>
+                        )}
                       </div>
 
                       {/* Features */}
@@ -239,17 +290,27 @@ export default function Products() {
 
                       {/* Actions */}
                       <div className="space-y-2 mt-auto">
-                        <a
-                          href={waLink(product.name)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#25D366] text-white text-sm font-bold rounded-xl hover:bg-[#20c05c] transition-all hover:shadow-md hover:shadow-green-500/25 hover:-translate-y-0.5"
-                        >
-                          <WhatsAppIcon />
-                          Order on WhatsApp
-                        </a>
+                        {product.stockStatus === 'out_of_stock' ? (
+                          <button
+                            onClick={() => setNotifyProduct({ _docId: (product as FirestoreProduct)._docId, name: product.name })}
+                            className="flex items-center justify-center gap-2 w-full py-2.5 bg-gray-700 text-white text-sm font-bold rounded-xl hover:bg-gray-600 transition-all hover:-translate-y-0.5 cursor-pointer"
+                          >
+                            <Bell size={15} />
+                            Notify Me When Available
+                          </button>
+                        ) : (
+                          <a
+                            href={waLink(product.name)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#25D366] text-white text-sm font-bold rounded-xl hover:bg-[#20c05c] transition-all hover:shadow-md hover:shadow-green-500/25 hover:-translate-y-0.5"
+                          >
+                            <WhatsAppIcon />
+                            {product.stockStatus === 'low_stock' ? 'Order Now — Few Left!' : 'Order on WhatsApp'}
+                          </a>
+                        )}
                         <button
-                          onClick={() => setLightbox({ images: product.images, index: 0, title: product.name })}
+                          onClick={() => setLightbox({ images: product.images, index: 0, title: product.name, currentPrice: product.currentPrice, description: product.description })}
                           className="w-full py-2 text-sm font-semibold text-brand border border-brand/30 rounded-xl hover:bg-brand-50 transition-all cursor-pointer"
                         >
                           See All Photos & Prices
@@ -300,7 +361,18 @@ export default function Products() {
           images={lightbox.images}
           initialIndex={lightbox.index}
           title={lightbox.title}
+          currentPrice={lightbox.currentPrice}
+          description={lightbox.description}
           onClose={() => setLightbox(null)}
+        />
+      )}
+
+      {/* Notify Me modal */}
+      {notifyProduct && (
+        <NotifyMeModal
+          productId={notifyProduct._docId}
+          productName={notifyProduct.name}
+          onClose={() => setNotifyProduct(null)}
         />
       )}
     </section>

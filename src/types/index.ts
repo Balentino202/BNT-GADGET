@@ -8,6 +8,8 @@ export type ProductCategory =
   | 'gaming'
   | 'accessories';
 
+export type StockStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
+
 export interface Product {
   id: string;
   name: string;
@@ -18,6 +20,7 @@ export interface Product {
   thumbnail: string;
   images: string[];
   badge?: string;
+  stockStatus?: StockStatus;
 }
 
 export interface ServiceItem {

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, MapPin, Clock } from 'lucide-react';
+import { Mail, MapPin, Clock, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { submitInquiry } from '../firebase/inquiries';
 
 const FacebookIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -35,6 +37,26 @@ const socials = [
 ];
 
 export default function Contact() {
+  const [form, setForm] = useState({ name: '', phone: '', interest: '', message: '' });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  const handleInquiry = async () => {
+    if (!form.name.trim()) { setFormError('Please enter your name.'); return; }
+    if (!form.phone.trim()) { setFormError('Please enter your WhatsApp number.'); return; }
+    setFormError('');
+    setSending(true);
+    try {
+      await submitInquiry({ name: form.name.trim(), phone: form.phone.trim(), interest: form.interest.trim(), message: form.message.trim() });
+      setSent(true);
+    } catch (err: unknown) {
+      setFormError((err as { message?: string })?.message ?? 'Failed to send. Please try WhatsApp instead.');
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <section id="contact" className="py-24 bg-gray-950 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -184,6 +206,90 @@ export default function Contact() {
             </motion.div>
           </div>
         </div>
+
+        {/* Inquiry Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-8 bg-gray-900 border border-gray-800 rounded-3xl p-8"
+        >
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <span className="inline-block px-3 py-1 bg-brand/15 border border-brand/25 text-brand-lighter text-xs font-bold uppercase tracking-widest rounded-full mb-3">
+                Send a Message
+              </span>
+              <h3 className="text-white font-black text-2xl mb-2">Leave Us Your Details</h3>
+              <p className="text-gray-500 text-sm">Fill this form and we'll reach out to you on WhatsApp within minutes.</p>
+            </div>
+
+            {sent ? (
+              <div className="text-center py-8">
+                <CheckCircle2 size={52} className="text-emerald-400 mx-auto mb-4" />
+                <h4 className="text-white font-black text-xl mb-2">Message Received!</h4>
+                <p className="text-gray-400 text-sm">We'll WhatsApp you very soon. Thank you!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Your Name *</label>
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                      placeholder="e.g. Chukwuemeka"
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-brand transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">WhatsApp Number *</label>
+                    <input
+                      type="tel"
+                      value={form.phone}
+                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                      placeholder="e.g. 08012345678"
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-brand transition-all"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Interested In (optional)</label>
+                  <input
+                    type="text"
+                    value={form.interest}
+                    onChange={(e) => setForm((f) => ({ ...f, interest: e.target.value }))}
+                    placeholder="e.g. iPhone 17 Pro, MacBook repair, Samsung Galaxy..."
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-brand transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Message (optional)</label>
+                  <textarea
+                    value={form.message}
+                    onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+                    placeholder="Any additional details or questions..."
+                    rows={3}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-brand transition-all resize-none"
+                  />
+                </div>
+
+                {formError && <p className="text-red-400 text-sm">{formError}</p>}
+
+                <button
+                  onClick={handleInquiry}
+                  disabled={sending}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-brand text-white font-bold rounded-2xl hover:bg-brand-dark transition-all disabled:opacity-60 cursor-pointer text-sm"
+                >
+                  {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  {sending ? 'Sending…' : 'Send Message'}
+                </button>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
       </div>
     </section>
   );
