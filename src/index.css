@@ -59,6 +59,7 @@
     -moz-osx-font-smoothing: grayscale;
     color: #111827;
     background: #ffffff;
+    overflow-x: hidden;
   }
   * {
     box-sizing: border-box;
@@ -72,5 +73,9 @@
   ::-webkit-scrollbar-thumb {
     background: #c06c0c;
     border-radius: 3px;
+  }
+  /* Hide scrollbar for horizontal pill rows */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

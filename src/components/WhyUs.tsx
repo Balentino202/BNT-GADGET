@@ -87,7 +87,7 @@ export default function WhyUs() {
             </div>
 
             {/* Metrics row */}
-            <div className="flex gap-8 mt-10 pt-8 border-t border-gray-100">
+            <div className="flex flex-wrap gap-x-8 gap-y-4 mt-10 pt-8 border-t border-gray-100">
               {[
                 { value: '10K+', label: 'Happy Customers' },
                 { value: '5K+', label: 'Devices Repaired' },

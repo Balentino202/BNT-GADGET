@@ -105,7 +105,7 @@ export default function Header() {
             </nav>
 
             {/* CTA */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-3">
               <a
                 href="#gadgets"
                 onClick={(e) => {
@@ -127,10 +127,10 @@ export default function Header() {
               </a>
             </div>
 
-            {/* Mobile hamburger */}
+            {/* Mobile / tablet hamburger */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
               aria-label="Toggle menu"
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -138,7 +138,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Nav */}
+        {/* Mobile / tablet Nav */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
@@ -146,7 +146,7 @@ export default function Header() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden overflow-hidden border-t border-gray-100"
+              className="lg:hidden overflow-hidden border-t border-gray-100"
             >
               <div className="px-4 py-4 space-y-1 bg-white">
                 {navLinks.map((link) => (

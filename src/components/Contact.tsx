@@ -102,8 +102,8 @@ export default function Contact() {
                 Order gadgets, book repairs, or ask anything. Responses within 5 minutes during business hours.
               </p>
             </div>
-            <div className="mt-6 flex items-center justify-between">
-              <span className="text-white font-bold text-lg">+234 916 368 5180</span>
+            <div className="mt-6 flex items-center justify-between gap-2">
+              <span className="text-white font-bold text-base sm:text-lg">+234 916 368 5180</span>
               <span className="text-white/60 text-sm group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </motion.a>

@@ -65,7 +65,7 @@ export default function Lightbox({ images, initialIndex, title, currentPrice, de
       >
         {/* ── Left: Image viewer ─────────────────────────── */}
         <div
-          className="relative flex items-center justify-center flex-1 min-h-0 px-12 py-16 lg:py-8"
+          className="relative flex items-center justify-center flex-1 min-h-0 px-10 py-10 sm:px-12 sm:py-12 lg:py-8"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close */}
@@ -105,7 +105,7 @@ export default function Lightbox({ images, initialIndex, title, currentPrice, de
               src={images[index]}
               alt={title}
               className="max-w-full max-h-full object-contain rounded-xl select-none"
-              style={{ maxHeight: 'calc(100vh - 140px)', maxWidth: 'calc(100% - 96px)' }}
+              style={{ maxHeight: 'calc(100vh - 120px)', maxWidth: 'calc(100% - 80px)' }}
             />
           </AnimatePresence>
 
@@ -138,7 +138,7 @@ export default function Lightbox({ images, initialIndex, title, currentPrice, de
         {/* ── Right: Pricing panel ───────────────────────── */}
         {currentPrice && (
           <div
-            className="lg:w-80 xl:w-96 bg-gray-950 border-t lg:border-t-0 lg:border-l border-white/10 flex flex-col overflow-y-auto max-h-[45vh] lg:max-h-full shrink-0"
+            className="lg:w-80 xl:w-96 bg-gray-950 border-t lg:border-t-0 lg:border-l border-white/10 flex flex-col overflow-y-auto max-h-[40vh] sm:max-h-[45vh] lg:max-h-full shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 flex-1">

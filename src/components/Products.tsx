@@ -176,7 +176,9 @@ export default function Products() {
           </div>
 
           {/* Category tabs */}
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-x-visible scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
@@ -184,7 +186,7 @@ export default function Products() {
                   setCategory(cat);
                   setVisible(PAGE_SIZE);
                 }}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-semibold transition-all cursor-pointer border ${
+                className={`flex shrink-0 items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-semibold transition-all cursor-pointer border ${
                   category === cat
                     ? 'bg-brand text-white border-brand shadow-md shadow-brand/25'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-brand/50 hover:text-brand hover:bg-brand-50'

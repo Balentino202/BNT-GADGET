@@ -59,8 +59,8 @@ export default function FAQ() {
               </a>
             </div>
 
-            {/* Quick stats */}
-            <div className="mt-10 pt-8 border-t border-gray-100 space-y-4">
+            {/* Quick stats — hidden on mobile to keep accordion reachable */}
+            <div className="hidden lg:block mt-10 pt-8 border-t border-gray-100 space-y-4">
               {[
                 { label: 'Response time', value: '< 5 mins' },
                 { label: 'Repair turnaround', value: '1–3 hours' },

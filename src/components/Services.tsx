@@ -95,7 +95,7 @@ export default function Services() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-brand/20 to-brand-light/10 border border-brand/20 rounded-3xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6"
+          className="bg-gradient-to-r from-brand/20 to-brand-light/10 border border-brand/20 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left"
         >
           <div>
             <h3 className="text-white font-bold text-xl mb-1">Device broken? We'll fix it today.</h3>

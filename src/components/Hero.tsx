@@ -96,7 +96,7 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex flex-col sm:flex-row gap-3 mb-10"
+                className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-10"
               >
                 <a
                   href="#gadgets"
@@ -258,7 +258,11 @@ export default function Hero() {
             {stats.map(({ value, label }, i) => (
               <div
                 key={label}
-                className={`py-5 px-6 text-center ${i < stats.length - 1 ? 'border-r border-white/10' : ''}`}
+                className={`py-5 px-4 sm:px-6 text-center ${
+                  i === 3 ? '' :
+                  i === 1 ? 'md:border-r border-white/10' :
+                  'border-r border-white/10'
+                }`}
               >
                 <p className="text-white font-black text-2xl sm:text-3xl mb-0.5">{value}</p>
                 <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">{label}</p>

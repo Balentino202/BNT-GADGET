@@ -201,9 +201,9 @@ export default function RepairEstimator() {
                   <p className="text-white font-bold text-xl mb-2">{result.note}</p>
                 ) : (
                   <>
-                    <p className="text-white font-black text-4xl sm:text-5xl mb-1">
+                    <p className="text-white font-black text-2xl sm:text-4xl lg:text-5xl mb-1 leading-tight">
                       {fmt(result.min)}{' '}
-                      <span className="text-gray-400 font-bold text-2xl">–</span>{' '}
+                      <span className="text-gray-400 font-bold text-xl sm:text-2xl">–</span>{' '}
                       {fmt(result.max)}
                     </p>
                     {result.note && (
