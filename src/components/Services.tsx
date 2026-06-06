@@ -40,8 +40,8 @@ export default function Services() {
             <span className="text-brand">Every Device</span>
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto text-base leading-relaxed">
-            Professional, fast and affordable repairs at No 8 Otigba Computer Village, Ikeja Lagos.
-            Most repairs completed same day.
+            Professional and affordable repairs at No 6 Otigba, Last Floor, Shop 4, Computer Village, Ikeja Lagos.
+            Repair time depends on your device — we confirm a clear timeline upfront.
           </p>
         </motion.div>
 
@@ -98,8 +98,8 @@ export default function Services() {
           className="bg-gradient-to-r from-brand/20 to-brand-light/10 border border-brand/20 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left"
         >
           <div>
-            <h3 className="text-white font-bold text-xl mb-1">Device broken? We'll fix it today.</h3>
-            <p className="text-gray-400 text-sm">Free diagnosis · No fix, no fee · Same-day repairs available</p>
+            <h3 className="text-white font-bold text-xl mb-1">Device broken? We'll get it sorted.</h3>
+            <p className="text-gray-400 text-sm">Free diagnosis · No fix, no fee · Clear timeline confirmed upfront</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <a

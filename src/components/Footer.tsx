@@ -167,7 +167,7 @@ export default function Footer() {
                   className="flex items-start gap-3 text-gray-400 hover:text-white transition-colors"
                 >
                   <MapPin size={15} className="mt-0.5 shrink-0 text-brand-lighter" />
-                  <span className="text-sm leading-snug">No 8 Otigba Computer Village, Ikeja, Lagos</span>
+                  <span className="text-sm leading-snug">No 6 Otigba, Last Floor, Shop 4, Computer Village, Ikeja, Lagos</span>
                 </a>
               </li>
             </ul>

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-React + Vite + TypeScript single-page website for **BNT-GET SERVICE** — a Nigerian gadget sales and repair shop (WhatsApp: +2349163685180, located at No 8 Otigba Computer Village, Ikeja, Lagos).
+React + Vite + TypeScript single-page website for **BNT-GET SERVICE** — a Nigerian gadget sales and repair shop (WhatsApp: +2349163685180, located at No 6 Otigba, Last Floor, Shop 4, Computer Village, Ikeja, Lagos).
 
 ## Commands
 

@@ -25,9 +25,9 @@ const WhatsAppIcon = () => (
 );
 
 const hours = [
-  { day: 'Monday – Friday', time: '8:00 AM – 8:00 PM', active: true },
-  { day: 'Saturday', time: '9:00 AM – 7:00 PM', active: true },
-  { day: 'Sunday', time: '1:00 PM – 5:00 PM', active: false },
+  { day: 'Monday – Friday', time: '9:00 AM – 8:00 PM', active: true },
+  { day: 'Saturday', time: '10:00 AM – 7:00 PM', active: true },
+  { day: 'Sunday', time: '2:00 PM – 5:00 PM', active: true },
 ];
 
 const socials = [
@@ -144,7 +144,7 @@ export default function Contact() {
               </div>
               <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">Visit Us</p>
               <h3 className="text-white font-bold text-base mb-2">Our Store</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">No 8 Otigba Computer Village, Ikeja, Lagos</p>
+              <p className="text-gray-500 text-xs leading-relaxed">No 6 Otigba, Last Floor, Shop 4, Computer Village, Ikeja, Lagos</p>
             </motion.a>
 
             {/* Opening hours */}

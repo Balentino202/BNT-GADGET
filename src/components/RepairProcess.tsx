@@ -61,7 +61,7 @@ export default function RepairProcess() {
             in <span className="text-brand">4 Simple Steps</span>
           </h2>
           <p className="text-gray-500 max-w-lg mx-auto text-base">
-            Fast, transparent, and hassle-free. Most repairs are done same day.
+            Transparent and hassle-free. Repair time depends on your device — we give you a clear timeline upfront.
           </p>
         </motion.div>
 
@@ -122,7 +122,7 @@ export default function RepairProcess() {
             <WhatsAppIcon />
             Book a Repair on WhatsApp
           </a>
-          <p className="text-gray-600 text-xs mt-4">Mon–Sat: 8AM–8PM · Sun: 1PM–5PM · Response within 5 mins</p>
+          <p className="text-gray-600 text-xs mt-4">Mon–Fri: 9AM–8PM · Sat: 10AM–7PM · Sun: 2PM–5PM · Response within 5 mins</p>
         </motion.div>
       </div>
     </section>

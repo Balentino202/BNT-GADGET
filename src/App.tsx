@@ -4,6 +4,8 @@ import Hero from './components/Hero';
 import BrandsBar from './components/BrandsBar';
 import WhyUs from './components/WhyUs';
 import Products from './components/Products';
+import TrustGuarantee from './components/TrustGuarantee';
+import Delivery from './components/Delivery';
 import Services from './components/Services';
 import RepairProcess from './components/RepairProcess';
 import RepairEstimator from './components/RepairEstimator';
@@ -26,6 +28,8 @@ export default function App() {
         <BrandsBar />
         <WhyUs />
         <Products />
+        <TrustGuarantee />
+        <Delivery />
         <Services />
         <RepairProcess />
         <RepairEstimator />

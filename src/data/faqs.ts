@@ -19,7 +19,7 @@ export const faqs: FaqItem[] = [
   },
   {
     question: 'How long does a repair take?',
-    answer: 'Most phone and tablet repairs are completed within 1–3 hours for common issues like screen or battery replacement. Complex repairs such as water damage or motherboard faults may take 24–48 hours. We always give you a time estimate upfront.',
+    answer: 'It depends on your device and the fault. Common issues like screen or battery replacement are often done the same day, while more complex jobs — water damage, motherboard faults, or repairs that need a part to be ordered — can take a few days. We always confirm a clear timeline before we start, so you know exactly what to expect.',
   },
   {
     question: 'Do you buy used gadgets?',
@@ -31,6 +31,6 @@ export const faqs: FaqItem[] = [
   },
   {
     question: 'Where is your store located?',
-    answer: 'We are located at No 8 Otigba Computer Village, Ikeja, Lagos. Our store hours are Monday–Saturday 9AM–7PM and Sunday 11AM–5PM. You can also reach us via WhatsApp 24/7 for inquiries.',
+    answer: 'We are located at No 6 Otigba, Last Floor, Shop 4, Computer Village, Ikeja, Lagos. Our store hours are Monday–Friday 9AM–8PM, Saturday 10AM–7PM, and Sunday 2PM–5PM. You can also reach us via WhatsApp 24/7 for inquiries.',
   },
 ];

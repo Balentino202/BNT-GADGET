@@ -24,58 +24,6 @@ const issues: { key: IssueKey; label: string; emoji: string }[] = [
   { key: 'other', label: 'Other Issue', emoji: '🔧' },
 ];
 
-type PriceEntry = { min: number; max: number; note?: string };
-
-const priceTable: Record<DeviceKey, Record<IssueKey, PriceEntry>> = {
-  iphone: {
-    screen:   { min: 15000,  max: 80000,  note: 'Varies by model (iPhone 11–17)' },
-    battery:  { min: 12000,  max: 28000,  note: 'OEM-grade replacement' },
-    charging: { min: 10000,  max: 20000  },
-    camera:   { min: 20000,  max: 65000,  note: 'Front or rear' },
-    water:    { min: 15000,  max: 55000,  note: 'Diagnosis required' },
-    software: { min: 5000,   max: 15000,  note: 'Unlock / restore / update' },
-    other:    { min: 5000,   max: 50000,  note: 'Diagnosis required' },
-  },
-  android: {
-    screen:   { min: 8000,   max: 50000  },
-    battery:  { min: 7000,   max: 20000  },
-    charging: { min: 5000,   max: 15000  },
-    camera:   { min: 10000,  max: 40000  },
-    water:    { min: 10000,  max: 45000,  note: 'Diagnosis required' },
-    software: { min: 3000,   max: 12000  },
-    other:    { min: 4000,   max: 40000,  note: 'Diagnosis required' },
-  },
-  macbook: {
-    screen:   { min: 50000,  max: 220000, note: 'Varies by model & year' },
-    battery:  { min: 35000,  max: 90000  },
-    charging: { min: 15000,  max: 40000  },
-    camera:   { min: 20000,  max: 55000  },
-    water:    { min: 30000,  max: 180000, note: 'Diagnosis required' },
-    software: { min: 10000,  max: 30000  },
-    other:    { min: 10000,  max: 100000, note: 'Diagnosis required' },
-  },
-  ipad: {
-    screen:   { min: 20000,  max: 85000  },
-    battery:  { min: 20000,  max: 50000  },
-    charging: { min: 10000,  max: 28000  },
-    camera:   { min: 15000,  max: 45000  },
-    water:    { min: 20000,  max: 70000,  note: 'Diagnosis required' },
-    software: { min: 5000,   max: 18000  },
-    other:    { min: 5000,   max: 50000,  note: 'Diagnosis required' },
-  },
-  watch: {
-    screen:   { min: 15000,  max: 65000  },
-    battery:  { min: 15000,  max: 40000  },
-    charging: { min: 8000,   max: 22000  },
-    camera:   { min: 0,      max: 0,      note: 'Smartwatches have no camera' },
-    water:    { min: 20000,  max: 55000,  note: 'Diagnosis required' },
-    software: { min: 5000,   max: 18000  },
-    other:    { min: 5000,   max: 40000,  note: 'Diagnosis required' },
-  },
-};
-
-const fmt = (n: number) => '₦' + n.toLocaleString();
-
 const WhatsAppIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
@@ -86,10 +34,12 @@ export default function RepairEstimator() {
   const [device, setDevice] = useState<DeviceKey | null>(null);
   const [issue, setIssue] = useState<IssueKey | null>(null);
 
-  const result = device && issue ? priceTable[device][issue] : null;
+  const selectedDevice = devices.find((d) => d.key === device) ?? null;
+  const selectedIssue = issues.find((i) => i.key === issue) ?? null;
+  const ready = !!(selectedDevice && selectedIssue);
 
-  const waMessage = device && issue
-    ? `Hi BNT, I need a repair estimate for my ${devices.find(d => d.key === device)?.label} — issue: ${issues.find(i => i.key === issue)?.label}. Can you help?`
+  const waMessage = ready
+    ? `Hi BNT, I'd like a repair quote for my ${selectedDevice!.label} — issue: ${selectedIssue!.label}. What would it cost?`
     : '';
 
   const reset = () => { setDevice(null); setIssue(null); };
@@ -106,7 +56,7 @@ export default function RepairEstimator() {
           className="text-center mb-14"
         >
           <span className="inline-block px-4 py-1.5 bg-brand/20 border border-brand/30 text-brand-lighter text-xs font-bold uppercase tracking-widest rounded-full mb-5">
-            Repair Cost Estimator
+            Instant Repair Quote
           </span>
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
             How Much Will
@@ -114,7 +64,7 @@ export default function RepairEstimator() {
             My Repair <span className="text-brand">Cost?</span>
           </h2>
           <p className="text-gray-400 text-base max-w-lg mx-auto">
-            Pick your device and the issue — get an instant price estimate in seconds. Free diagnosis at our store.
+            Pick your device and the issue — get your exact quote in minutes on WhatsApp. Free diagnosis at our store.
           </p>
         </motion.div>
 
@@ -185,7 +135,7 @@ export default function RepairEstimator() {
 
           {/* Result */}
           <AnimatePresence>
-            {result && (
+            {ready && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.97, y: 16 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -193,30 +143,42 @@ export default function RepairEstimator() {
                 transition={{ duration: 0.35 }}
                 className="bg-gradient-to-br from-brand/20 to-brand-light/10 border border-brand/30 rounded-2xl p-6 sm:p-8"
               >
-                <p className="text-brand-lighter text-xs font-bold uppercase tracking-widest mb-2">
-                  Estimated Cost
+                <p className="text-brand-lighter text-xs font-bold uppercase tracking-widest mb-3">
+                  Your Repair Request
                 </p>
 
-                {result.min === 0 ? (
-                  <p className="text-white font-bold text-xl mb-2">{result.note}</p>
-                ) : (
-                  <>
-                    <p className="text-white font-black text-2xl sm:text-4xl lg:text-5xl mb-1 leading-tight">
-                      {fmt(result.min)}{' '}
-                      <span className="text-gray-400 font-bold text-xl sm:text-2xl">–</span>{' '}
-                      {fmt(result.max)}
-                    </p>
-                    {result.note && (
-                      <p className="text-gray-400 text-sm mt-1">* {result.note}</p>
-                    )}
-                  </>
-                )}
+                {/* Selection summary chips */}
+                <div className="flex flex-wrap items-center gap-2 mb-5">
+                  <span className="inline-flex items-center gap-2 px-3.5 py-2 bg-white/10 border border-white/15 rounded-xl text-white font-bold text-sm">
+                    <span className="text-lg">{selectedDevice!.emoji}</span>
+                    {selectedDevice!.label}
+                  </span>
+                  <span className="text-gray-500">·</span>
+                  <span className="inline-flex items-center gap-2 px-3.5 py-2 bg-white/10 border border-white/15 rounded-xl text-white font-bold text-sm">
+                    <span className="text-lg">{selectedIssue!.emoji}</span>
+                    {selectedIssue!.label}
+                  </span>
+                </div>
 
-                <div className="mt-5 p-3 bg-white/5 border border-white/10 rounded-xl">
-                  <p className="text-gray-400 text-xs leading-relaxed">
-                    ⚠️ This is an estimate only. Final price depends on exact model, parts availability and damage extent.
-                    <strong className="text-white"> Free diagnosis at our Ikeja store.</strong>
-                  </p>
+                <h3 className="text-white font-black text-2xl sm:text-3xl leading-tight mb-2">
+                  Get your <span className="text-brand-lighter">exact price</span> in minutes
+                </h3>
+                <p className="text-gray-300 text-sm leading-relaxed max-w-md">
+                  Prices vary by exact model, parts and damage — so we quote you the real figure directly,
+                  no surprises. Send your request and we'll reply on WhatsApp right away.
+                </p>
+
+                <div className="mt-5 grid sm:grid-cols-3 gap-2.5">
+                  {[
+                    { icon: '🩺', text: 'Free diagnosis' },
+                    { icon: '⚡', text: 'Reply in ~5 mins' },
+                    { icon: '✅', text: 'No obligation' },
+                  ].map((b) => (
+                    <div key={b.text} className="flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-xl">
+                      <span className="text-base">{b.icon}</span>
+                      <span className="text-gray-300 text-xs font-semibold">{b.text}</span>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 mt-6">
@@ -227,7 +189,7 @@ export default function RepairEstimator() {
                     className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#25D366] text-white font-bold rounded-2xl hover:bg-[#20c05c] transition-all hover:shadow-xl hover:shadow-green-500/25 hover:-translate-y-0.5"
                   >
                     <WhatsAppIcon />
-                    Book This Repair on WhatsApp
+                    Get My Exact Quote on WhatsApp
                     <ChevronRight size={16} />
                   </a>
                   <button
@@ -251,7 +213,7 @@ export default function RepairEstimator() {
         </motion.div>
 
         <p className="text-center text-gray-600 text-xs mt-5">
-          🏪 Walk-in available at No 8 Otigba Computer Village, Ikeja, Lagos · Mon–Sat 8AM–8PM
+          🏪 Walk-in available at No 6 Otigba, Last Floor, Shop 4, Computer Village, Ikeja, Lagos · Mon–Fri 9AM–8PM · Sat 10AM–7PM · Sun 2PM–5PM
         </p>
       </div>
     </section>
