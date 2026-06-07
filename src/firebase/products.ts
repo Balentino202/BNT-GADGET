@@ -54,6 +54,11 @@ export async function updateProduct(docId: string, data: Partial<Product>) {
   return updateDoc(doc(db, COL, docId), { ...data, updatedAt: serverTimestamp() });
 }
 
+/** Update only a product's display order (used by admin reordering) */
+export async function setProductOrder(docId: string, order: number) {
+  return updateDoc(doc(db, COL, docId), { order });
+}
+
 /** Delete product (and its Storage images) */
 export async function deleteProduct(docId: string, imageUrls: string[]) {
   await deleteDoc(doc(db, COL, docId));

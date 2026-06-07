@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Laptop, Tablet, Watch, ChevronRight, RefreshCw } from 'lucide-react';
+import { Smartphone, Laptop, Tablet, Watch, ChevronRight, RefreshCw, Phone, Loader2, CheckCircle2 } from 'lucide-react';
 import { WHATSAPP_NUMBER } from '../data/products';
+import { submitInquiry } from '../firebase/inquiries';
 
 type DeviceKey = 'iphone' | 'android' | 'macbook' | 'ipad' | 'watch';
 type IssueKey = 'screen' | 'battery' | 'charging' | 'camera' | 'water' | 'software' | 'other';
@@ -34,6 +35,14 @@ export default function RepairEstimator() {
   const [device, setDevice] = useState<DeviceKey | null>(null);
   const [issue, setIssue] = useState<IssueKey | null>(null);
 
+  /* Optional "request a callback" form (saved to admin, no WhatsApp needed) */
+  const [showCallback, setShowCallback] = useState(false);
+  const [cbName, setCbName] = useState('');
+  const [cbPhone, setCbPhone] = useState('');
+  const [cbSending, setCbSending] = useState(false);
+  const [cbSent, setCbSent] = useState(false);
+  const [cbError, setCbError] = useState('');
+
   const selectedDevice = devices.find((d) => d.key === device) ?? null;
   const selectedIssue = issues.find((i) => i.key === issue) ?? null;
   const ready = !!(selectedDevice && selectedIssue);
@@ -42,7 +51,34 @@ export default function RepairEstimator() {
     ? `Hi BNT, I'd like a repair quote for my ${selectedDevice!.label} — issue: ${selectedIssue!.label}. What would it cost?`
     : '';
 
-  const reset = () => { setDevice(null); setIssue(null); };
+  const reset = () => {
+    setDevice(null); setIssue(null);
+    setShowCallback(false); setCbName(''); setCbPhone('');
+    setCbSent(false); setCbError('');
+  };
+
+  const handleCallback = async () => {
+    if (!cbName.trim()) { setCbError('Please enter your name.'); return; }
+    if (!cbPhone.trim()) { setCbError('Please enter your phone number.'); return; }
+    setCbError('');
+    setCbSending(true);
+    try {
+      await submitInquiry({
+        name: cbName.trim(),
+        phone: cbPhone.trim(),
+        interest: `Repair: ${selectedDevice!.label} — ${selectedIssue!.label}`,
+        message: '',
+        type: 'repair',
+        device: selectedDevice!.label,
+        issue: selectedIssue!.label,
+      });
+      setCbSent(true);
+    } catch {
+      setCbError('Could not send. Please use WhatsApp instead.');
+    } finally {
+      setCbSending(false);
+    }
+  };
 
   return (
     <section className="py-24 bg-gray-950 overflow-hidden">
@@ -199,6 +235,56 @@ export default function RepairEstimator() {
                     <RefreshCw size={15} />
                     Start Over
                   </button>
+                </div>
+
+                {/* Or request a callback (no WhatsApp needed) */}
+                <div className="mt-5 pt-5 border-t border-white/10">
+                  {cbSent ? (
+                    <div className="flex items-center gap-2.5 text-emerald-400">
+                      <CheckCircle2 size={18} className="shrink-0" />
+                      <p className="text-sm font-semibold">Request received — we'll reach out to you shortly. Thank you!</p>
+                    </div>
+                  ) : !showCallback ? (
+                    <button
+                      onClick={() => setShowCallback(true)}
+                      className="text-gray-400 hover:text-white text-sm font-medium transition-colors cursor-pointer"
+                    >
+                      Prefer not to chat now?{' '}
+                      <span className="text-brand-lighter font-semibold underline underline-offset-2">Request a callback →</span>
+                    </button>
+                  ) : (
+                    <div>
+                      <p className="text-white text-sm font-semibold mb-3">Leave your details and we'll reach out:</p>
+                      <div className="grid sm:grid-cols-2 gap-2.5">
+                        <input
+                          type="text"
+                          value={cbName}
+                          onChange={(e) => setCbName(e.target.value)}
+                          placeholder="Your name"
+                          className="px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-brand transition-all"
+                        />
+                        <div className="relative">
+                          <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
+                          <input
+                            type="tel"
+                            value={cbPhone}
+                            onChange={(e) => setCbPhone(e.target.value)}
+                            placeholder="WhatsApp / phone number"
+                            className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-600 text-sm focus:outline-none focus:border-brand transition-all"
+                          />
+                        </div>
+                      </div>
+                      {cbError && <p className="text-red-400 text-xs mt-2">{cbError}</p>}
+                      <button
+                        onClick={handleCallback}
+                        disabled={cbSending}
+                        className="mt-3 inline-flex items-center justify-center gap-2 px-5 py-3 bg-brand text-white font-bold rounded-xl hover:bg-brand-dark transition-all disabled:opacity-60 cursor-pointer text-sm"
+                      >
+                        {cbSending ? <Loader2 size={15} className="animate-spin" /> : null}
+                        {cbSending ? 'Sending…' : 'Send Repair Request'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}

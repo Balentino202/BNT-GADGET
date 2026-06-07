@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from './config';
 
 export interface WaitlistEntry {
@@ -20,6 +20,14 @@ export async function fetchAllWaitlist(): Promise<WaitlistEntry[]> {
   const q = query(collection(db, 'waitlist'), orderBy('createdAt', 'desc'));
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ ...(d.data() as Omit<WaitlistEntry, '_docId'>), _docId: d.id }));
+}
+
+/** Live subscription — newest first. Returns an unsubscribe function. */
+export function subscribeToWaitlist(cb: (entries: WaitlistEntry[]) => void) {
+  const q = query(collection(db, 'waitlist'), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snap) => {
+    cb(snap.docs.map((d) => ({ ...(d.data() as Omit<WaitlistEntry, '_docId'>), _docId: d.id })));
+  });
 }
 
 export async function removeWaitlistEntry(docId: string) {

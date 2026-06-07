@@ -21,6 +21,8 @@ export interface Product {
   images: string[];
   badge?: string;
   stockStatus?: StockStatus;
+  /** When false, the product is hidden from the public site (still editable in admin). Undefined = visible. */
+  published?: boolean;
 }
 
 export interface ServiceItem {

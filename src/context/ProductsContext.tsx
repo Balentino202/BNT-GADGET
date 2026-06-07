@@ -24,7 +24,8 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsub = subscribeToProducts((docs: FirestoreProduct[]) => {
       if (docs.length > 0) {
-        setProducts(docs);
+        // Hide products the admin has unpublished (published === false)
+        setProducts(docs.filter((p) => p.published !== false));
         setFromFirestore(true);
       } else {
         setProducts(staticAsFirestore);
